@@ -139,6 +139,7 @@ public class Matrix {
         this.update_count++;
     }
 
+    //Geração de uma chave
     public byte[] generate_key(int size){
         byte[] key = new byte[size];
 
@@ -149,8 +150,6 @@ public class Matrix {
         seed = this.matrix[row][0];
         rand = new Random(seed);
         int column = rand.nextInt(size);
-
-        System.out.println("Row: " + row + " Column: " + column);
 
         byte[] row_bytes = this.matrix[row];
         byte[] column_bytes = this.getColumn(column);
