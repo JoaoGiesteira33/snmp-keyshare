@@ -5,6 +5,5 @@ import java.util.Scanner;
 class Main{
     public static void main(String[] args){
         Agente a = new Agente("default.conf");
-        a.print_matrix();
     }
 }

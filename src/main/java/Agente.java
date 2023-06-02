@@ -15,10 +15,18 @@ public class Agente {
     private int X; //Máximo entradas tabela de informações
 
     private Matrix matrix;
+    private Server server;
 
     public Agente(String config_file){
         read_file(config_file);
         gerar_matriz();
+
+        try{
+            this.server = new Server();
+            this.server.serve();
+        }catch(Exception e){
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     private void read_file(String file_name){
