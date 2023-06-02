@@ -1,5 +1,8 @@
 package main.java;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -89,7 +92,101 @@ public class PDU {
         this.W = W;
     }
 
-    public String encode(){
-        return "ola";
+    public byte[] encode(){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        //Convert all fiels strings
+        //Ignore S, Ns and Q
+        String P = Integer.toString(this.P) + '\0';
+        String Y = Integer.toString(this.Y) + '\0';
+
+        String Nl = Integer.toString(this.Nl) + '\0';
+        String Nw = Integer.toString(this.Nw) + '\0';
+        String Nr = Integer.toString(this.Nr) + '\0';
+
+        //Encode all Strings as ASCII terminated by 0x00
+        byte[] P_bytes = P.getBytes(StandardCharsets.US_ASCII);
+        byte[] Y_bytes = Y.getBytes(StandardCharsets.US_ASCII);
+
+        byte[] Nl_bytes = Nl.getBytes(StandardCharsets.US_ASCII);
+        byte[] Nw_bytes = Nw.getBytes(StandardCharsets.US_ASCII);
+        byte[] Nr_bytes = Nr.getBytes(StandardCharsets.US_ASCII);
+
+        StringBuilder sb = new StringBuilder();
+        for(Entry<Integer,Integer> entry : this.L) {
+            sb.append(entry.getKey());
+            sb.append('\0');
+            sb.append(entry.getValue());
+            sb.append('\0');
+        }
+        for(Entry<Integer,String> entry : this.W){
+            sb.append(entry.getKey());
+            sb.append('\0');
+            sb.append(entry.getValue());
+            sb.append('\0');
+        }
+        for(Entry<Integer,String> entry : this.R){
+            sb.append(entry.getKey());
+            sb.append('\0');
+            sb.append(entry.getValue());
+            sb.append('\0');
+        }
+        String L_W_R = sb.toString();
+        byte[] L_W_R_bytes = L_W_R.getBytes(StandardCharsets.US_ASCII);
+
+        try{
+            stream.write(P_bytes);
+            stream.write(Y_bytes);
+
+            stream.write(Nl_bytes);
+            stream.write(Nw_bytes);
+            stream.write(Nr_bytes);
+
+            stream.write(L_W_R_bytes);
+        
+        }catch(IOException e){
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        return stream.toByteArray();
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("S: " + this.S + '\n');
+        sb.append("Ns: " + this.Ns + '\n');
+
+        sb.append("Q: ");
+        for(int i = 0; i < this.Q.length; i++){
+            sb.append(this.Q[i] + " ");
+        }
+        sb.append('\n');
+
+        sb.append("P: " + this.P + '\n');
+        sb.append("Y: " + this.Y + '\n');
+
+        sb.append("Nl: " + this.Nl + '\n');
+        sb.append("Nw: " + this.Nw + '\n');
+        sb.append("Nr: " + this.Nr + '\n');
+
+        sb.append("L: ");
+        for(Entry<Integer,Integer> entry : this.L){
+            sb.append(entry.getKey() + "->" + entry.getValue() + " | ");
+        }
+        sb.append('\n');
+
+        sb.append("W: ");
+        for(Entry<Integer,String> entry : this.W){
+            sb.append(entry.getKey() + "->" + entry.getValue() + " | ");
+        }
+
+        sb.append("R: ");
+        for(Entry<Integer,String> entry : this.R){
+            sb.append(entry.getKey() + "->" + entry.getValue() + " | ");
+        }
+
+        return sb.toString();
     }
 }
