@@ -19,5 +19,7 @@ class Main{
         for(int i = 0; i < b.length; i++){
             System.out.println(String.format("0x%02X ", b[i]));
         }
+
+        PDU.decode(b);
     }
 }

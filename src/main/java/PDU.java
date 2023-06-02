@@ -1,7 +1,9 @@
 package main.java;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,12 +145,40 @@ public class PDU {
             stream.write(Nr_bytes);
 
             stream.write(L_W_R_bytes);
-        
+            
+            byte[] encoded_PDU = stream.toByteArray();
+            stream.close();
+            return encoded_PDU;
         }catch(IOException e){
             System.out.println("Error: " + e.getMessage());
+            return null;
+        }        
+    }
+
+    private static String read_full_string(ByteArrayInputStream encoded_PDU){
+        StringBuilder sb = new StringBuilder();
+
+        int current_byte = encoded_PDU.read();
+        while(current_byte != 0){
+            sb.append((char)current_byte);
+            current_byte = encoded_PDU.read();
         }
 
-        return stream.toByteArray();
+        return sb.toString();
+    }
+
+    public static void decode(byte[] encoded_PDU){
+        //PDU decoded_PDU = new PDU();
+        ByteArrayInputStream stream = new ByteArrayInputStream(encoded_PDU);
+        
+        //Decode all fields
+        //Ignore S, Ns and Q
+        while(stream.available() > 0){
+            String new_word = PDU.read_full_string(stream);
+            System.out.println(new_word);
+        }
+    
+        //return decoded_PDU;
     }
 
     @Override
