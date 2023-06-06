@@ -3,8 +3,8 @@ package main.java;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -167,18 +167,58 @@ public class PDU {
         return sb.toString();
     }
 
-    public static void decode(byte[] encoded_PDU){
-        //PDU decoded_PDU = new PDU();
+    public static PDU decode(byte[] encoded_PDU){
+        List<Entry<Integer,Integer>> L = new ArrayList<Entry<Integer,Integer>>();
+        List<Entry<Integer,String>> W = new ArrayList<Entry<Integer,String>>();
+        List<Entry<Integer,String>> R = new ArrayList<Entry<Integer,String>>();
+
         ByteArrayInputStream stream = new ByteArrayInputStream(encoded_PDU);
         
-        //Decode all fields
         //Ignore S, Ns and Q
-        while(stream.available() > 0){
-            String new_word = PDU.read_full_string(stream);
-            System.out.println(new_word);
+        String P = read_full_string(stream);
+        String Y = read_full_string(stream);
+        String Nl = read_full_string(stream);
+        String Nw = read_full_string(stream);
+        String Nr = read_full_string(stream);
+        
+        Integer P_value = Integer.parseInt(P);
+        Integer Y_value = Integer.parseInt(Y);
+        Integer L_size = Integer.parseInt(Nl);
+        Integer W_size = Integer.parseInt(Nw);	
+        Integer R_size = Integer.parseInt(Nr);
+
+        for(int i = 0; i < L_size; i++){
+            String key = read_full_string(stream);
+            String value = read_full_string(stream);
+            L.add(new AbstractMap.SimpleEntry<Integer,Integer>(Integer.parseInt(key),Integer.parseInt(value)));
         }
-    
-        //return decoded_PDU;
+
+        for(int i = 0; i < W_size; i++){
+            String key = read_full_string(stream);
+            String value = read_full_string(stream);
+            W.add(new AbstractMap.SimpleEntry<Integer,String>(Integer.parseInt(key),value));
+        }
+
+        for(int i = 0; i < R_size; i++){
+            String key = read_full_string(stream);
+            String value = read_full_string(stream);
+            R.add(new AbstractMap.SimpleEntry<Integer,String>(Integer.parseInt(key),value));
+        }
+
+        
+        if(Y_value == 0){//Response
+            PDU response = new PDU(P_value, W_size, R_size, W, R);
+            return response;
+        }else if(Y_value == 1){//Get
+            PDU get = new PDU(P_value, L_size, L);
+            return get;
+        }else if(Y_value == 2){//Set
+            PDU set = new PDU(P_value, W_size, W, 2);
+            return set;
+        }else{
+            System.out.println("Error: Could not decode PDU");
+            return null;
+        }
     }
 
     @Override
