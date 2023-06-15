@@ -15,6 +15,8 @@ public class Agente {
     private int X; //Máximo entradas tabela de informações
 
     private Matrix matrix;
+    private MIB mib;
+    
     private Server server;
 
     public Agente(String config_file){
@@ -48,14 +50,15 @@ public class Agente {
                 System.out.println("Utilizando valores por default.");
                 read_file(DEFAULT_CONFIG_FILE);
             }
-
             myReader.close();
+
             //Parse de valores lidos
             this.K = Integer.parseInt(K);
             this.M = M.getBytes();
             this.T = Integer.parseInt(T);
             this.V = Integer.parseInt(V);
             this.X = Integer.parseInt(X);
+            
         }catch(FileNotFoundException e){
             System.out.println("Ficheiro de configuração não encontrado!");
             System.out.println("Utilizando valores por default.");
