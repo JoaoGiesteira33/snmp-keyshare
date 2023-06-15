@@ -16,19 +16,20 @@ public class Agente {
 
     private Matrix matrix;
     private MIB mib;
-    
-    private Server server;
 
     public Agente(String config_file){
         read_file(config_file);
         gerar_matriz();
+        gerar_mib();
 
-        try{
-            this.server = new Server();
-            this.server.serve();
-        }catch(Exception e){
-            System.out.println("Error: " + e.getMessage());
-        }
+        Runnable server = new Server(this.matrix, this.mib);
+        Thread server_thread = new Thread(server);
+
+        Runnable matrix_handler = new MatrixHandler(this.matrix, this.T);
+        Thread matrix_handler_thread = new Thread(matrix_handler);
+
+        matrix_handler_thread.start();
+        server_thread.start();
     }
 
     private void read_file(String file_name){
@@ -58,7 +59,7 @@ public class Agente {
             this.T = Integer.parseInt(T);
             this.V = Integer.parseInt(V);
             this.X = Integer.parseInt(X);
-            
+
         }catch(FileNotFoundException e){
             System.out.println("Ficheiro de configuração não encontrado!");
             System.out.println("Utilizando valores por default.");
@@ -72,6 +73,10 @@ public class Agente {
         Matrix s = new Matrix(this.K, SEED);
 
         this.matrix = new Matrix(this.K, a.getMatrix(), b.getMatrix(), s.getMatrix());
+    }
+
+    private void gerar_mib(){
+        this.mib = new MIB(this.K*2, this.T, this.X, this.V, this.M, 0, 256);
     }
 
     public void print_matrix(){

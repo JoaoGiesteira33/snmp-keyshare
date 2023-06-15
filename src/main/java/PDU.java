@@ -94,6 +94,10 @@ public class PDU {
         this.W = W;
     }
 
+    public int getY(){
+        return this.Y;
+    }
+
     public byte[] encode(){
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
@@ -225,6 +229,7 @@ public class PDU {
     public String toString(){
         StringBuilder sb = new StringBuilder();
 
+        sb.append("==================\n");
         sb.append("S: " + this.S + '\n');
         sb.append("Ns: " + this.Ns + '\n');
 

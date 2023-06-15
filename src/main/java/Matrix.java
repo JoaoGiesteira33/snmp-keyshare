@@ -1,8 +1,12 @@
 package main.java;
 
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Matrix {
+    Lock lock = new ReentrantLock();
+
     private byte[][] matrix;
     private byte[] key;
     private int update_count = 0;
@@ -113,51 +117,60 @@ public class Matrix {
 
     public void update_matrix(){
         int size = this.matrix.length;
-
-        //Rotate rows randomly
-        for(int i = 0; i < size; i++){
-            byte first_row_value = this.matrix[i][0];
-            Random rand = new Random((long)first_row_value);
-            int rotate_value = rand.nextInt(size);
-
-            this.matrix[i] = rotate_right(this.matrix[i], rotate_value);
-        }
-
-        //Rotate columns randomly
-        for(int j = 0 ; j < size; j++){
-            byte first_column_value = this.matrix[0][j];
-            Random rand = new Random((long)first_column_value);
-            int rotate_value = rand.nextInt(size);
-
-            byte[] new_column = rotate_right(this.getColumn(j), rotate_value);
-
+        lock.lock();
+        try{        
+            //Rotate rows randomly
             for(int i = 0; i < size; i++){
+                byte first_row_value = this.matrix[i][0];
+                Random rand = new Random((long)first_row_value);
+                int rotate_value = rand.nextInt(size);
+                
+                this.matrix[i] = rotate_right(this.matrix[i], rotate_value);
+            }
+            
+            //Rotate columns randomly
+            for(int j = 0 ; j < size; j++){
+                byte first_column_value = this.matrix[0][j];
+                Random rand = new Random((long)first_column_value);
+                int rotate_value = rand.nextInt(size);
+                
+                byte[] new_column = rotate_right(this.getColumn(j), rotate_value);
+                
+                for(int i = 0; i < size; i++){
                 this.matrix[i][j] = new_column[i];
             }
         }
+            this.update_count++;
 
-        this.update_count++;
+        }finally{
+            lock.unlock();
+        }
     }
 
     //Geração de uma chave
     public byte[] generate_key(int size){
         byte[] key = new byte[size];
+        lock.lock();
 
-        long seed = this.update_count + this.matrix[0][0];
-        Random rand = new Random(seed);
-        int row = rand.nextInt(size);
+        try{
+            long seed = this.update_count + this.matrix[0][0];
+            Random rand = new Random(seed);
+            int row = rand.nextInt(size);
+            
+            seed = this.matrix[row][0];
+            rand = new Random(seed);
+            int column = rand.nextInt(size);
+            
+            byte[] row_bytes = this.matrix[row];
+            byte[] column_bytes = this.getColumn(column);
 
-        seed = this.matrix[row][0];
-        rand = new Random(seed);
-        int column = rand.nextInt(size);
-
-        byte[] row_bytes = this.matrix[row];
-        byte[] column_bytes = this.getColumn(column);
-
-        for(int i = 0; i < size; i++){
-            key[i] = (byte)(row_bytes[i] ^ column_bytes[i]);
+            for(int i = 0; i < size; i++){
+                key[i] = (byte)(row_bytes[i] ^ column_bytes[i]);
+            }
+        }finally{
+            lock.unlock();
         }
-
+        
         return key;
     }
 
