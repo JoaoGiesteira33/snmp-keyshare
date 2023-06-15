@@ -69,10 +69,12 @@ public class Server implements Runnable{
     }
 
     private void handle_get_request(PDU pdu){
+        int P = pdu.getP();
+
         
     }
 
     private void handle_set_request(PDU pdu){
-
+        int P = pdu.getP();
     }
 }

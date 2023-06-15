@@ -21,12 +21,12 @@ public class PDU {
     private int Nw; //Número de pares na lista das primitivas set e response
     private int Nr; //Número de elementos na lista de erros
 
-    private List<Entry<Integer,Integer>> L; //Lista primitivas get
-    private List<Entry<Integer,String>> W; //Lista primitiva set e response
-    private List<Entry<Integer,String>> R; //Lista de erros e valores associados
+    private List<Entry<String,Integer>> L; //Lista primitivas get
+    private List<Entry<String,String>> W; //Lista primitiva set e response
+    private List<Entry<String,String>> R; //Lista de erros e valores associados
 
     //Construtor primitiva get
-    public PDU(int P, int size, List<Entry<Integer,Integer>> lista){
+    public PDU(int P, int size, List<Entry<String,Integer>> lista){
         this.S = 0;
         this.Ns = 0;
         this.Q = new int[0];
@@ -37,11 +37,11 @@ public class PDU {
         this.get_constructor(P, size, lista);
         
         this.Nr = 0;
-        this.R = new ArrayList<Entry<Integer,String>>();
+        this.R = new ArrayList<Entry<String,String>>();
     }
 
     //Construtor primitiva set
-    public PDU(int P, int size, List<Entry<Integer,String>> lista, int tipo){
+    public PDU(int P, int size, List<Entry<String,String>> lista, int tipo){
         this.S = 0;
         this.Ns = 0;
         this.Q = new int[0];
@@ -50,16 +50,16 @@ public class PDU {
         this.Y = tipo;
 
         this.Nl = 0;
-        this.L = new ArrayList<Entry<Integer,Integer>>();
+        this.L = new ArrayList<Entry<String,Integer>>();
 
         this.set_constructor(P, size, lista);
         
         this.Nr = 0;
-        this.R = new ArrayList<Entry<Integer,String>>();
+        this.R = new ArrayList<Entry<String,String>>();
     }
 
     //Construtor primitiva response
-    public PDU(int P, int Nw, int Nr, List<Entry<Integer,String>> W, List<Entry<Integer,String>> R){
+    public PDU(int P, int Nw, int Nr, List<Entry<String,String>> W, List<Entry<String,String>> R){
         this.S = 0;
         this.Ns = 0;
         this.Q = new int[0];
@@ -71,31 +71,47 @@ public class PDU {
         this.Nw = Nw;
         this.Nr = Nr;
 
-        this.L = new ArrayList<Entry<Integer,Integer>>();
+        this.L = new ArrayList<Entry<String,Integer>>();
         this.W = W;
         this.R = R;
     }
 
     //Função auxiliar para construção primitiva get
-    private void get_constructor(int P, int Nl, List<Entry<Integer,Integer>> L){
+    private void get_constructor(int P, int Nl, List<Entry<String,Integer>> L){
         this.Nl = Nl;
         this.Nw = 0;
 
         this.L = L;
-        this.W = new ArrayList<Entry<Integer,String>>();
+        this.W = new ArrayList<Entry<String,String>>();
     }
 
     //Função auxiliar para construção primitiva set
-    private void set_constructor(int P, int Nw, List<Entry<Integer,String>> W){
+    private void set_constructor(int P, int Nw, List<Entry<String,String>> W){
         this.Nl = 0;
         this.Nw = Nw;
 
-        this.L = new ArrayList<Entry<Integer,Integer>>();
+        this.L = new ArrayList<Entry<String,Integer>>();
         this.W = W;
+    }
+
+    public int getP(){
+        return this.P;
     }
 
     public int getY(){
         return this.Y;
+    }
+
+    public List<Entry<String,Integer>> getL(){
+        return this.L;
+    }
+
+    public List<Entry<String,String>> getW(){
+        return this.W;
+    }
+
+    public List<Entry<String,String>> getR(){
+        return this.R;
     }
 
     public byte[] encode(){
@@ -119,19 +135,19 @@ public class PDU {
         byte[] Nr_bytes = Nr.getBytes(StandardCharsets.US_ASCII);
 
         StringBuilder sb = new StringBuilder();
-        for(Entry<Integer,Integer> entry : this.L) {
+        for(Entry<String,Integer> entry : this.L) {
             sb.append(entry.getKey());
             sb.append('\0');
             sb.append(entry.getValue());
             sb.append('\0');
         }
-        for(Entry<Integer,String> entry : this.W){
+        for(Entry<String,String> entry : this.W){
             sb.append(entry.getKey());
             sb.append('\0');
             sb.append(entry.getValue());
             sb.append('\0');
         }
-        for(Entry<Integer,String> entry : this.R){
+        for(Entry<String,String> entry : this.R){
             sb.append(entry.getKey());
             sb.append('\0');
             sb.append(entry.getValue());
@@ -172,9 +188,9 @@ public class PDU {
     }
 
     public static PDU decode(byte[] encoded_PDU){
-        List<Entry<Integer,Integer>> L = new ArrayList<Entry<Integer,Integer>>();
-        List<Entry<Integer,String>> W = new ArrayList<Entry<Integer,String>>();
-        List<Entry<Integer,String>> R = new ArrayList<Entry<Integer,String>>();
+        List<Entry<String,Integer>> L = new ArrayList<Entry<String,Integer>>();
+        List<Entry<String,String>> W = new ArrayList<Entry<String,String>>();
+        List<Entry<String,String>> R = new ArrayList<Entry<String,String>>();
 
         ByteArrayInputStream stream = new ByteArrayInputStream(encoded_PDU);
         
@@ -194,19 +210,19 @@ public class PDU {
         for(int i = 0; i < L_size; i++){
             String key = read_full_string(stream);
             String value = read_full_string(stream);
-            L.add(new AbstractMap.SimpleEntry<Integer,Integer>(Integer.parseInt(key),Integer.parseInt(value)));
+            L.add(new AbstractMap.SimpleEntry<String,Integer>(key,Integer.parseInt(value)));
         }
 
         for(int i = 0; i < W_size; i++){
             String key = read_full_string(stream);
             String value = read_full_string(stream);
-            W.add(new AbstractMap.SimpleEntry<Integer,String>(Integer.parseInt(key),value));
+            W.add(new AbstractMap.SimpleEntry<String,String>(key,value));
         }
 
         for(int i = 0; i < R_size; i++){
             String key = read_full_string(stream);
             String value = read_full_string(stream);
-            R.add(new AbstractMap.SimpleEntry<Integer,String>(Integer.parseInt(key),value));
+            R.add(new AbstractMap.SimpleEntry<String,String>(key,value));
         }
 
         
@@ -247,18 +263,18 @@ public class PDU {
         sb.append("Nr: " + this.Nr + '\n');
 
         sb.append("L: ");
-        for(Entry<Integer,Integer> entry : this.L){
+        for(Entry<String,Integer> entry : this.L){
             sb.append(entry.getKey() + "->" + entry.getValue() + " | ");
         }
         sb.append('\n');
 
         sb.append("W: ");
-        for(Entry<Integer,String> entry : this.W){
+        for(Entry<String,String> entry : this.W){
             sb.append(entry.getKey() + "->" + entry.getValue() + " | ");
         }
 
         sb.append("R: ");
-        for(Entry<Integer,String> entry : this.R){
+        for(Entry<String,String> entry : this.R){
             sb.append(entry.getKey() + "->" + entry.getValue() + " | ");
         }
 

@@ -68,4 +68,44 @@ public class MIB {
 
         return hour * 10000 + minute * 100 + second;
       }
+
+      public String get_iid_value(String iid){
+        switch(iid){
+          case "system.1.0":
+            return Integer.toString(this.s_restart_date);
+          case "system.2.0":
+            return Integer.toString(this.s_restart_time);
+          case "system.3.0":
+            return Integer.toString(this.s_key_size);
+          case "system.4.0":
+            return Integer.toString(this.s_interval_update);
+          case "system.5.0":
+            return Integer.toString(this.s_max_number_of_keys);
+          case "system.6.0":
+            return Integer.toString(this.s_keys_ttl);
+          case "config.1.0":
+            return new String(this.c_master_key);
+          case "config.2.0":
+            return Integer.toString(this.c_first_char_of_keys_alphabet);
+          case "config.3.0":
+            return Integer.toString(this.c_cardinality_of_keys_alphabet);
+          case "data.1.0":
+            return Integer.toString(this.d_number_of_valid_keys);
+          default:
+            break;
+        }
+
+        String[] iid_split = iid.split("\\.");
+        if(iid_split.length == 2){
+          String column = iid_split[0];
+          int row = Integer.parseInt(iid_split[1]);
+
+          KeyEntry key_entry = this.d_table_generated_keys.get(row);
+          if(key_entry != null){
+            return key_entry.get_value_from_iid(column);
+          }
+        }
+
+        return null;
+      }
 }
