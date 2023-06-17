@@ -47,7 +47,7 @@ public class Server implements Runnable{
 
             PDU received_pdu = PDU.decode(request.getData());
             System.out.println("Received PDU: " + received_pdu.toString());
-            handle_pdu(received_pdu);
+            //handle_pdu(received_pdu);
         }
         socket.close();
     }
@@ -70,8 +70,6 @@ public class Server implements Runnable{
 
     private void handle_get_request(PDU pdu){
         int P = pdu.getP();
-
-        
     }
 
     private void handle_set_request(PDU pdu){

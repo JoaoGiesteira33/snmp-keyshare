@@ -273,7 +273,7 @@ public class PDU {
             sb.append(entry.getKey() + "->" + entry.getValue() + " | ");
         }
 
-        sb.append("R: ");
+        sb.append("\nR: ");
         for(Entry<String,String> entry : this.R){
             sb.append(entry.getKey() + "->" + entry.getValue() + " | ");
         }
