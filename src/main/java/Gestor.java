@@ -8,9 +8,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-
-import javax.swing.plaf.synth.SynthOptionPaneUI;
-
 import java.util.Scanner;
 
 public class Gestor {
@@ -23,17 +20,18 @@ public class Gestor {
             socket.setSoTimeout(Gestor.V * 1000);
             InetAddress address = InetAddress.getByName("localhost");
             
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[2048];
 
             PDU request = create_request(scanner);
 
             while(request != null){
-                System.out.println("Sending request\n" + request.toString());
+                System.out.println("Sending request (P)" + request.getP() + " of (Y)" + request.getY());
                 buffer = request.encode();
 
                 DatagramPacket dpr = new DatagramPacket(buffer, buffer.length, address, 5050);
                 socket.send(dpr);
                 
+                buffer = new byte[2048];
                 DatagramPacket dps = new DatagramPacket(buffer, buffer.length);
 
                 try{
@@ -44,6 +42,7 @@ public class Gestor {
                     continue;
                 }
 
+                System.out.println("Received following data: " + new String(dps.getData(), 0, dps.getLength()) + "\n");
                 PDU response = PDU.decode(dps.getData());
                 System.out.println("Received response\n" + response.toString());
 
