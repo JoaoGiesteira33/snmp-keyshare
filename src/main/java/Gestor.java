@@ -85,7 +85,7 @@ public class Gestor {
         List<Entry<String,Integer>> L = new ArrayList<Entry<String,Integer>>();
 
         String input;        
-        System.out.println("Size of L: \n> ");
+        System.out.println("Size of L\n> ");
         input = scanner.nextLine();
         int size = 1;
 

@@ -30,11 +30,11 @@ public class Server implements Runnable{
     public void run(){
         while(true){
             DatagramPacket request = new DatagramPacket(buffer, buffer.length);
+
             try{
                 socket.receive(request);
             }catch(IOException e){
                 System.out.println("Error: " + e.getMessage());
-                socket.close();
                 break;
             }
 
@@ -47,32 +47,48 @@ public class Server implements Runnable{
 
             PDU received_pdu = PDU.decode(request.getData());
             System.out.println("Received PDU: " + received_pdu.toString());
-            //handle_pdu(received_pdu);
+            
+            PDU response = handle_pdu(received_pdu);
+            
+            if(response == null){
+                continue;
+            }
+
+            buffer = response.encode();
+            
+            DatagramPacket response_packet = new DatagramPacket(buffer, buffer.length, request.getAddress(), request.getPort());
+            
+            try{
+                socket.send(response_packet);
+            }catch(IOException e){
+                System.out.println("Error: " + e.getMessage());
+                break;
+            }
+
         }
+        System.out.println("Stopping server!");
         socket.close();
     }
 
-    private void handle_pdu(PDU pdu){
+    private PDU handle_pdu(PDU pdu){
         int pdu_type = pdu.getY();
 
         switch(pdu_type){
             case 1:
-                handle_get_request(pdu);
-                break;
+                return handle_get_request(pdu);
             case 2:
-                handle_set_request(pdu);
-                break;
+                return handle_set_request(pdu);
             default:
                 System.out.println("Error: Unacceptable PDU type");
-                break;
+                return null;
         }
     }
 
-    private void handle_get_request(PDU pdu){
+    private PDU handle_get_request(PDU pdu){
         int P = pdu.getP();
     }
 
-    private void handle_set_request(PDU pdu){
+    private PDU handle_set_request(PDU pdu){
         int P = pdu.getP();
     }
 }
