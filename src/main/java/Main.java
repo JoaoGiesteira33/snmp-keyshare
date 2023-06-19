@@ -8,6 +8,7 @@ import java.util.AbstractMap;
 class Main{
     public static void main(String[] args){
         Agente a = new Agente("default.conf");
+        a.init();
 
         //List<Entry<String,String>> r = new ArrayList<Entry<String,String>>();
         //r.add(new AbstractMap.SimpleEntry<String,String>("data.1.0", "erro1"));

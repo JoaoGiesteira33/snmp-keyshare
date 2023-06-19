@@ -21,7 +21,9 @@ public class Agente {
         read_file(config_file);
         gerar_matriz();
         gerar_mib();
+    }
 
+    public void init(){
         Runnable server = new Server(this.matrix, this.mib);
         Thread server_thread = new Thread(server);
 

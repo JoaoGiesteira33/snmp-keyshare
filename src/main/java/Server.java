@@ -7,10 +7,11 @@ import java.util.Map.Entry;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 
 public class Server implements Runnable{
     private static final int PORT = 5050;
-    private DatagramSocket socket;
+    public DatagramSocket socket;
     private byte[] buffer = new byte[2048];
 
     private Matrix matrix;
@@ -22,12 +23,10 @@ public class Server implements Runnable{
         this.matrix = matrix;
         this.mib = mib;
 
-        try{
+        try {
             socket = new DatagramSocket(PORT);
-            System.out.println("Server started on port " + PORT);
-        }catch(Exception e){
-            System.out.println("Error: " + e.getMessage());
-            socket.close();
+        } catch (SocketException e) {
+            e.printStackTrace();
         }
     }
 
@@ -145,6 +144,39 @@ public class Server implements Runnable{
 
     private PDU handle_set_request(PDU pdu){
         int P = pdu.getP();
-        return new PDU(1,1,new ArrayList<>());
+        List<Entry<String, String>> receiving_W = pdu.getW();
+
+        List<Entry<String,String>> W = new ArrayList<>();
+        List<Entry<String,String>> R = new ArrayList<>();
+
+        int Nw = 0;
+        int Nr = 0;
+
+        for(Entry<String,String> entry : receiving_W){
+            String iid = entry.getKey();
+            String value = entry.getValue();
+
+            String set_result = this.mib.set_iid_value(iid, value);
+            
+            if(set_result.equals(value)){
+                Nw++;
+                W.add(new AbstractMap.SimpleEntry<String,String>(iid, set_result));
+            }else{   
+                Nr++;
+                W.add(new AbstractMap.SimpleEntry<String,String>(iid, set_result));
+            }
+        }
+
+        if(W.size() == 0){
+            Nw = 1;
+            W.add(new AbstractMap.SimpleEntry<String,String>("0", "0"));
+        }
+
+        if(R.size() == 0){
+            Nr = 1;
+            R.add(new AbstractMap.SimpleEntry<String,String>("0", "0"));
+        }
+
+        return new PDU(P, Nw, Nr, W, R);
     }
 }

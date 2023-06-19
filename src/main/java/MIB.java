@@ -59,12 +59,28 @@ public class MIB {
         return year * 10000 + month * 100 + day;
       }
 
+      public static int get_date(LocalDate date){
+        int year =  date.getYear();
+        int month = date.getMonthValue();
+        int day = date.getDayOfMonth();
+
+        return year * 10000 + month * 100 + day;
+      }
+
       public static int get_current_time(){
         LocalTime current_time = LocalTime.now();
 
         int hour = current_time.getHour();
         int minute = current_time.getMinute();
         int second = current_time.getSecond();
+
+        return hour * 10000 + minute * 100 + second;
+      }
+
+      public static int get_time(LocalTime time){
+        int hour = time.getHour();
+        int minute = time.getMinute();
+        int second = time.getSecond();
 
         return hour * 10000 + minute * 100 + second;
       }
@@ -107,5 +123,78 @@ public class MIB {
         }
 
         return null;
+      }
+
+      public String set_iid_value(String iid, String value){
+        switch(iid){
+          case "system.1.0":
+            return "Read-only";
+
+          case "system.2.0":
+            return "Read-only";
+
+          case "system.3.0":
+            try{
+              this.s_key_size = Integer.parseInt(value);
+              return value;
+            }catch(NumberFormatException e){
+              return "Wrong type";
+            }
+
+          case "system.4.0":
+            this.s_interval_update = Integer.parseInt(value);
+            return value;
+          case "system.5.0":
+            try{
+              this.s_max_number_of_keys = Integer.parseInt(value);
+              return value;
+            }catch(NumberFormatException e){
+              return "Wrong type";
+            }
+
+          case "system.6.0":
+            try{
+              this.s_keys_ttl = Integer.parseInt(value);
+              return value;
+            }catch(NumberFormatException e){
+              return "Wrong type";
+            }
+
+          case "config.1.0":
+            this.c_master_key = value.getBytes();
+            return value;
+          case "config.2.0":
+            try{
+              this.c_first_char_of_keys_alphabet = Integer.parseInt(value);
+              return value;
+            }catch(NumberFormatException e){
+              return "Wrong type";
+            }
+
+          case "config.3.0":
+            this.c_cardinality_of_keys_alphabet = Integer.parseInt(value);
+            return value;
+
+          case "data.1.0":
+            return "Read-only";
+
+          default:
+            break;
+        }
+
+        String[] iid_split = iid.split("\\.");
+        if(iid_split.length == 2){
+          String column = iid_split[0];
+          int row = Integer.parseInt(iid_split[1]);
+
+          KeyEntry key_entry = this.d_table_generated_keys.get(row);
+          if(key_entry != null){
+            return key_entry.set_value(column, value);
+          }else{
+            return "Non-existent key";
+          }
+        }
+
+        return "Unknown behavior";
       }
 }

@@ -37,4 +37,28 @@ public class KeyEntry {
 
         return null;
     }
+
+    public String set_value(String column, String value){
+        switch(column){
+            case "keyId":
+                return "Read-only";
+            case "keyValue":
+                return "Read-only";
+            case "keyRequester":
+                return "Read-only";
+            case "keyExpirationDate":
+                return "Read-only";
+            case "keyExpirationTime":
+                return "Read-only";
+            case "keyVisibility":
+                try{
+                    this.key_visibility = Integer.parseInt(value);
+                    return value;
+                }catch(NumberFormatException e){
+                    return "Wrong type";
+                }
+        }
+        
+        return "Unkown behavior";
+    }
 }
