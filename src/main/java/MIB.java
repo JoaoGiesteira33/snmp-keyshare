@@ -2,6 +2,7 @@ package main.java;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -216,7 +217,17 @@ public class MIB {
       }
 
       private int get_free_key_id(){
+        if(this.d_number_of_valid_keys == this.s_max_number_of_keys){
+          return 0;
+        }
         
+        Set<Integer> occupied_keys = this.d_table_generated_keys.keySet();
+
+        for(int i = 1 ; i < this.s_max_number_of_keys ; i++){
+          if(!occupied_keys.contains(i)){
+            return i;
+          }
+        }
         
         return 0;
       }
