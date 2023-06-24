@@ -4,6 +4,9 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+
+import org.w3c.dom.css.RGBColor;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -156,14 +159,31 @@ public class Server implements Runnable{
             String iid = entry.getKey();
             String value = entry.getValue();
 
+            if(iid.equals("keyVisibility.0")){
+                if(value.equals("0") || value.equals("1") || value.equals("2")){
+                    byte[] key = this.matrix.generate_key(this.mib.get_s_key_size());
+                    this.matrix.update_matrix();
+
+                    int key_row = this.mib.save_key(key);
+                    String new_iid = "keyVisibility." + key_row;
+
+                    Nw++;
+                    W.add(new AbstractMap.SimpleEntry<String,String>(new_iid, value));
+                }else{
+                    Nr++;
+                    R.add(new AbstractMap.SimpleEntry<String,String>(iid, "Invalid value"));
+                }
+                continue;
+            }
+
             String set_result = this.mib.set_iid_value(iid, value);
             
             if(set_result.equals(value)){
                 Nw++;
                 W.add(new AbstractMap.SimpleEntry<String,String>(iid, set_result));
-            }else{   
+            }else{
                 Nr++;
-                W.add(new AbstractMap.SimpleEntry<String,String>(iid, set_result));
+                R.add(new AbstractMap.SimpleEntry<String,String>(iid, set_result));
             }
         }
 

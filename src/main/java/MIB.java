@@ -214,4 +214,10 @@ public class MIB {
 
         return "Unknown behavior";
       }
+
+      public int save_key(byte[] key){
+        
+
+        return 0;
+      }
 }
