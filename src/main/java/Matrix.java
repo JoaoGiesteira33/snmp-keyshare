@@ -184,6 +184,14 @@ public class Matrix {
         return new_line;
     }
 
+    public int size(){
+        return this.matrix.length;
+    }
+
+    public int key_size(){
+        return this.key.length;
+    }
+
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();

@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class Agente {
     private static final String DEFAULT_CONFIG_FILE = "default.conf";
-    private static final long SEED = 33;
+    public static final long SEED = 33;
 
     private int K; //Tamanho matriz
     private byte[] M; //Chave geração matriz
@@ -27,7 +27,7 @@ public class Agente {
         Runnable server = new Server(this.matrix, this.mib);
         Thread server_thread = new Thread(server);
 
-        Runnable matrix_handler = new MatrixHandler(this.matrix, this.T);
+        Runnable matrix_handler = new MatrixHandler(this.matrix, this.mib);
         Thread matrix_handler_thread = new Thread(matrix_handler);
 
         matrix_handler_thread.start();
@@ -78,7 +78,7 @@ public class Agente {
     }
 
     private void gerar_mib(){
-        this.mib = new MIB(this.K*2, this.T, this.X, this.V, this.M, 0, 256);
+        this.mib = new MIB(this.K, this.T, this.X, this.V, this.M, 0, 256);
     }
 
     public void print_matrix(){

@@ -9,7 +9,7 @@ public class MIB {
     //System group
     private int s_restart_date;
     private int s_restart_time;
-    public int s_key_size;
+    public int s_key_size; //Also size of the matrix
     public int s_interval_update;
     public int s_max_number_of_keys;
     public int s_keys_ttl;
@@ -47,6 +47,14 @@ public class MIB {
 
       public int get_s_interval_update(){
         return this.s_interval_update;
+      }
+
+      public int get_s_key_size(){
+        return this.s_key_size;
+      }
+
+      public byte[] get_c_master_key(){
+        return this.c_master_key;
       }
 
       public static int get_current_date(){
@@ -135,8 +143,13 @@ public class MIB {
 
           case "system.3.0":
             try{
-              this.s_key_size = Integer.parseInt(value);
-              return value;
+              int temp_key_size = Integer.parseInt(value);
+              if(temp_key_size * 2 <= this.c_master_key.length){
+                this.s_key_size = temp_key_size;
+                return value;
+              }else{
+                return "Key size too big";
+              }
             }catch(NumberFormatException e){
               return "Wrong type";
             }
@@ -161,8 +174,12 @@ public class MIB {
             }
 
           case "config.1.0":
-            this.c_master_key = value.getBytes();
-            return value;
+            if(value.getBytes().length >= this.s_key_size * 2){
+              this.c_master_key = value.getBytes();
+              return value;
+            }else{
+              return "Key too short";
+            }
           case "config.2.0":
             try{
               this.c_first_char_of_keys_alphabet = Integer.parseInt(value);
