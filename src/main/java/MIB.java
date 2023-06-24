@@ -215,8 +215,21 @@ public class MIB {
         return "Unknown behavior";
       }
 
-      public int save_key(byte[] key){
+      private int get_free_key_id(){
         
+        
+        return 0;
+      }
+
+      public int save_key(byte[] key, String sender, int value){
+        int key_id = get_free_key_id();
+
+        if(key_id != 0){
+          KeyEntry key_entry = new KeyEntry(key_id, key, sender, this.s_keys_ttl, value);
+          this.d_table_generated_keys.put(key_id, key_entry);
+          
+          return key_id;
+        }
 
         return 0;
       }

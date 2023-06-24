@@ -53,7 +53,8 @@ public class Server implements Runnable{
             PDU received_pdu = PDU.decode(request.getData());
             System.out.println("Received PDU (P)" + received_pdu.getP() + " of (Y)" + received_pdu.getY());
             
-            PDU response = handle_pdu(received_pdu);
+            String pdu_sender = request.getAddress().toString() + ":" + request.getPort();
+            PDU response = handle_pdu(received_pdu, pdu_sender);
             
             if(response == null){
                 continue;
@@ -76,14 +77,14 @@ public class Server implements Runnable{
         socket.close();
     }
 
-    private PDU handle_pdu(PDU pdu){
+    private PDU handle_pdu(PDU pdu, String pdu_sender){
         int pdu_type = pdu.getY();
 
         switch(pdu_type){
             case 1:
                 return handle_get_request(pdu);
             case 2:
-                return handle_set_request(pdu);
+                return handle_set_request(pdu, pdu_sender);
             default:
                 System.out.println("Error: Unacceptable PDU type");
                 return null;
@@ -145,7 +146,7 @@ public class Server implements Runnable{
         return new PDU(P, Nw, Nr, W, R);
     }
 
-    private PDU handle_set_request(PDU pdu){
+    private PDU handle_set_request(PDU pdu, String pdu_sender){
         int P = pdu.getP();
         List<Entry<String, String>> receiving_W = pdu.getW();
 
@@ -163,15 +164,17 @@ public class Server implements Runnable{
                 if(value.equals("0") || value.equals("1") || value.equals("2")){
                     byte[] key = this.matrix.generate_key(this.mib.get_s_key_size());
                     this.matrix.update_matrix();
+                    
+                    int i_value = Integer.parseInt(value);
 
-                    int key_row = this.mib.save_key(key);
+                    int key_row = this.mib.save_key(key, pdu_sender, i_value);
                     String new_iid = "keyVisibility." + key_row;
 
                     Nw++;
                     W.add(new AbstractMap.SimpleEntry<String,String>(new_iid, value));
                 }else{
                     Nr++;
-                    R.add(new AbstractMap.SimpleEntry<String,String>(iid, "Invalid value"));
+                    R.add(new AbstractMap.SimpleEntry<String,String>(iid, "Invalid Visibility Value (0,1,2)"));
                 }
                 continue;
             }
