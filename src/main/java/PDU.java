@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+/*
+ * Autor: João Giesteira
+ * 
+ * Classe que representa os pacotes trocados entre o agente e o gestor
+ * 
+ * Permite encoding e decoding de pacotes
+ */
 public class PDU {
     private int S; //modelo_segurança
     private int Ns; //numero_parametros_mecanismos_segurança

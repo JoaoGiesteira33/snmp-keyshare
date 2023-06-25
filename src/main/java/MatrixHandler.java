@@ -1,5 +1,10 @@
 package main.java;
 
+/*
+ * Autor: João Giesteira
+ * 
+ * Thread para atualizar matriz de chaves periodicamente
+ */
 public class MatrixHandler implements Runnable{
     private Matrix matrix;
     private long last_update_time = System.currentTimeMillis();

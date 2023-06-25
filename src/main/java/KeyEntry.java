@@ -4,6 +4,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+/*
+ * Autor: João Giesteira
+ * 
+ * Classe que representa uma entrada da tabela de chaves
+ * 
+ * Controla o acesso a valores da chave, de acordo com a sua visibilidade e quem faz o pedido
+ */
 public class KeyEntry {
     private int key_id;
     private byte[] key_value;

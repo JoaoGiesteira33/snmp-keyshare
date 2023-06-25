@@ -4,6 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+/*
+ * Autor: João Giesteira
+ * 
+ * Classe responsável por simular o comportamento de um agente
+ * 
+ * Lê ficheiro de configuração e inicia matriz e MIB
+ */
 public class Agente {
     private static final String DEFAULT_CONFIG_FILE = "default.conf";
     public static final long SEED = 33;

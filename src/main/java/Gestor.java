@@ -10,6 +10,15 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
+/*
+ * Autor: João Giesteira
+ * 
+ * Classe responsável por simular o comportamento de um gestor
+ * 
+ * Menu interativo CLI para o gestor criar e enviar diferentes PDU's
+ * 
+ * O gestor envia um PDU e espera pela resposta, se não receber resposta em V segundos pode reenviar o PDU
+ */
 public class Gestor {
     private static final int V = 1; //Time to wait for a response (seconds)
     private static int request_numer = 0;

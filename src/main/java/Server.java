@@ -9,6 +9,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+/*
+ * Autor: João Giesteira
+ * 
+ * Thread que vai receber todos os PDU's, processá-los, criar resposta e enviar a mesma
+ */
 public class Server implements Runnable{
     private static final int PORT = 5050;
     public DatagramSocket socket;

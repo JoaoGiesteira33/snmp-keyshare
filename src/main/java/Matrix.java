@@ -4,6 +4,11 @@ import java.util.Random;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/*
+ * Autor: João Giesteira
+ * 
+ * Classe responsável pela criação e manipulação de matrizes 
+ */
 public class Matrix {
     Lock lock = new ReentrantLock();
 

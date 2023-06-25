@@ -7,6 +7,15 @@ import java.util.Set;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/*
+ * Autor: João Giesteira
+ * 
+ * Classe que representa a MIB
+ * 
+ * Insere dados de pedidos SET
+ * 
+ * Devolve dados de pedidos GET
+ */
 public class MIB {
     //System group
     private int s_restart_date;
