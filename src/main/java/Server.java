@@ -4,6 +4,9 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+
+import javax.crypto.SecretKey;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -17,6 +20,7 @@ import java.net.SocketException;
 public class Server implements Runnable{
     private static final int PORT = 5050;
     public DatagramSocket socket;
+    private SecretKey SK;
     private byte[] buffer = new byte[2048];
 
     private Matrix matrix;
@@ -24,9 +28,10 @@ public class Server implements Runnable{
 
     long last_update_time = System.currentTimeMillis();
 
-    public Server(Matrix matrix, MIB mib){
+    public Server(Matrix matrix, MIB mib, SecretKey SK){
         this.matrix = matrix;
         this.mib = mib;
+        this.SK = SK;
 
         try {
             socket = new DatagramSocket(PORT);
@@ -47,18 +52,18 @@ public class Server implements Runnable{
                 break;
             }
 
-            String message = new String(request.getData(), 0, request.getLength());
+            byte[] data = PDU.decrypt(request.getData(), this.SK, request.getLength());
+            String message = new String(data);
             
             if(message.equals("end")){
                 break;
             }
-
-            if(message.equals("keys")){
+            if(message.equals("key")){
                 print_key_info();
                 continue;
             }
 
-            PDU received_pdu = PDU.decode(request.getData());
+            PDU received_pdu = PDU.decode(data);
             System.out.println("Received PDU (P)" + received_pdu.getP() + " of (Y)" + received_pdu.getY());
             
             String pdu_sender = request.getAddress().toString() + ":" + request.getPort();
@@ -68,9 +73,8 @@ public class Server implements Runnable{
                 continue;
             }
 
-            buffer = response.encode();
-            
-            System.out.println("Sending response PDU\n" + response.toString());
+            byte[] encrypted_data = PDU.encrypt(response.encode(), this.SK);
+            buffer = encrypted_data;
             DatagramPacket response_packet = new DatagramPacket(buffer, buffer.length, request.getAddress(), request.getPort());
             
             try{

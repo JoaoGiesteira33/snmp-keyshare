@@ -4,10 +4,16 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 /*
  * Autor: João Giesteira
@@ -31,6 +37,8 @@ public class PDU {
     private List<Entry<String,Integer>> L; //Lista primitivas get
     private List<Entry<String,String>> W; //Lista primitiva set e response
     private List<Entry<String,String>> R; //Lista de erros e valores associados
+
+    private static final IvParameterSpec iv = new IvParameterSpec("0123456789abcdef".getBytes(StandardCharsets.UTF_8));
 
     //Construtor DEBUG keys
     public PDU(int P, int tipo){
@@ -292,5 +300,33 @@ public class PDU {
         }
 
         return sb.toString();
+    }
+
+    public static byte[] decrypt(byte[] encrypted_data, SecretKey sk, int size){
+        try{
+            Cipher cipher = Cipher.getInstance("AES/OFB/NoPadding");
+            
+            cipher.init(Cipher.DECRYPT_MODE, sk, PDU.iv);
+
+            byte[] decrypted_data = cipher.doFinal(encrypted_data, 0, size);
+            return decrypted_data;
+        }catch(Exception e){
+            System.out.println("Decrypt Error: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static byte[] encrypt(byte[] data, SecretKey sk){
+        try{
+            Cipher cipher = Cipher.getInstance("AES/OFB/NoPadding");
+            
+            cipher.init(Cipher.ENCRYPT_MODE, sk, PDU.iv);
+
+            byte[] encrypted_data = cipher.doFinal(data);
+            return encrypted_data;
+        }catch(Exception e){
+            System.out.println("Encrypt Error: " + e.getMessage());
+            return null;
+        }
     }
 }

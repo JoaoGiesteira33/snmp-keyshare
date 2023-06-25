@@ -8,6 +8,10 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 import java.util.Scanner;
 
 /*
@@ -23,6 +27,9 @@ public class Gestor {
     private static final int V = 1; //Time to wait for a response (seconds)
     private static int request_numer = 0;
     public static void main(String[] args){
+        byte[] B_SK = "ditmb8ehavz52mg0".getBytes();
+        SecretKey SK = new SecretKeySpec(B_SK, "AES");
+        
         try{
             Scanner scanner = new Scanner(System.in);
             DatagramSocket socket = new DatagramSocket();
@@ -36,12 +43,13 @@ public class Gestor {
             while(request != null){
                 System.out.println("Sending request (P)" + request.getP() + " of (Y)" + request.getY());
                 if(request.getY() == 3){
-                    buffer = "keys".getBytes();   
+                    buffer = "key".getBytes();   
                 }else{
                     buffer = request.encode();
                 }
 
-                DatagramPacket dpr = new DatagramPacket(buffer, buffer.length, address, 5050);
+                byte[] encrypted_buffer = PDU.encrypt(buffer, SK);
+                DatagramPacket dpr = new DatagramPacket(encrypted_buffer, encrypted_buffer.length, address, 5050);
                 socket.send(dpr);
                 
                 buffer = new byte[2048];
@@ -55,15 +63,16 @@ public class Gestor {
                     continue;
                 }
 
-                System.out.println("Received following data: " + new String(dps.getData(), 0, dps.getLength()) + "\n");
-                PDU response = PDU.decode(dps.getData());
+                byte[] plain_data = PDU.decrypt(dps.getData(), SK, dps.getLength());
+                PDU response = PDU.decode(plain_data);
                 System.out.println("Received response\n" + response.toString());
 
                 request = create_request(scanner);
             }
             
             buffer = "end".getBytes();
-            DatagramPacket dpr = new DatagramPacket(buffer, buffer.length, address, 5050);
+            byte[] encrypted_buffer = PDU.encrypt(buffer, SK);
+            DatagramPacket dpr = new DatagramPacket(encrypted_buffer, encrypted_buffer.length, address, 5050);
             socket.send(dpr);
 
             socket.close();

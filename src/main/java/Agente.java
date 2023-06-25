@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 /*
  * Autor: João Giesteira
  * 
@@ -20,6 +23,7 @@ public class Agente {
     private int T; //Intervalo entre atualização da matriz (ms)
     private int V; //Tempo validade Chaves, etc. (s)
     private int X; //Máximo entradas tabela de informações
+    private SecretKey SK; //Chave secreta
 
     private Matrix matrix;
     private MIB mib;
@@ -31,7 +35,7 @@ public class Agente {
     }
 
     public void init(){
-        Runnable server = new Server(this.matrix, this.mib);
+        Runnable server = new Server(this.matrix, this.mib, this.SK);
         Thread server_thread = new Thread(server);
 
         Runnable matrix_handler = new MatrixHandler(this.matrix, this.mib);
@@ -53,7 +57,8 @@ public class Agente {
             String M = myReader.nextLine();
             String T = myReader.nextLine();
             String V = myReader.nextLine();
-            String X = myReader.nextLine();   
+            String X = myReader.nextLine();
+            String S_SK = myReader.nextLine();
 
             if(myReader.hasNextLine()){
                 System.out.println("Ficheiro de configuração inválido!");
@@ -68,6 +73,9 @@ public class Agente {
             this.T = Integer.parseInt(T);
             this.V = Integer.parseInt(V);
             this.X = Integer.parseInt(X);
+
+            byte[] B_SK = S_SK.getBytes();
+            this.SK = new SecretKeySpec(B_SK, "AES");
 
         }catch(FileNotFoundException e){
             System.out.println("Ficheiro de configuração não encontrado!");
