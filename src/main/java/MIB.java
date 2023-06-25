@@ -1,6 +1,7 @@
 package main.java;
 
 import java.util.Map;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 import java.time.LocalDate;
@@ -58,6 +59,10 @@ public class MIB {
         return this.c_master_key;
       }
 
+      public Collection<KeyEntry> get_keys(){
+        return this.d_table_generated_keys.values();
+      }
+
       public static int get_current_date(){
         LocalDate current_date = LocalDate.now();
 
@@ -94,7 +99,7 @@ public class MIB {
         return hour * 10000 + minute * 100 + second;
       }
 
-      public String get_iid_value(String iid){
+      public String get_iid_value(String iid, String pdu_sender){
         switch(iid){
           case "system.1.0":
             return Integer.toString(this.s_restart_date);
@@ -126,15 +131,23 @@ public class MIB {
           int row = Integer.parseInt(iid_split[1]);
 
           KeyEntry key_entry = this.d_table_generated_keys.get(row);
+          
           if(key_entry != null){
-            return key_entry.get_value_from_iid(column);
+            String key_creator = key_entry.get_key_requester();
+            int key_visibility = key_entry.get_key_visibility();
+
+            if(key_visibility == 2){
+              return key_entry.get_value_from_iid(column);
+            }else if(key_visibility == 1 && pdu_sender.equals(key_creator)){
+              return key_entry.get_value_from_iid(column);
+            }
           }
         }
-
+        
         return null;
       }
 
-      public String set_iid_value(String iid, String value){
+      public String set_iid_value(String iid, String value, String pdu_sender){
         switch(iid){
           case "system.1.0":
             return "Read-only";
@@ -207,7 +220,7 @@ public class MIB {
 
           KeyEntry key_entry = this.d_table_generated_keys.get(row);
           if(key_entry != null){
-            return key_entry.set_value(column, value);
+            return key_entry.set_value(column, value, pdu_sender);
           }else{
             return "Non-existent key";
           }
@@ -223,8 +236,17 @@ public class MIB {
         
         Set<Integer> occupied_keys = this.d_table_generated_keys.keySet();
 
+        //Search for free ID
         for(int i = 1 ; i < this.s_max_number_of_keys ; i++){
           if(!occupied_keys.contains(i)){
+            return i;
+          }
+        }
+
+        //Search for expired key
+        for(int i = 1 ; i < this.s_max_number_of_keys ; i++){
+          KeyEntry key_entry = this.d_table_generated_keys.get(i);
+          if(key_entry.is_expired()){
             return i;
           }
         }
@@ -243,5 +265,17 @@ public class MIB {
         }
 
         return 0;
+      }
+
+      public void update_number_valid_keys(){
+        int number_of_valid_keys = 0;
+
+        for(KeyEntry ke : this.d_table_generated_keys.values()){
+          if(!ke.is_expired()){
+            number_of_valid_keys++;
+          }
+        }
+
+        this.d_number_of_valid_keys = number_of_valid_keys;
       }
 }

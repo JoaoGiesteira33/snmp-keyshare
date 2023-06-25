@@ -33,6 +33,14 @@ public class KeyEntry {
         calculate_expiration_date(ttl_seconds);
     }
 
+    public String get_key_requester(){
+        return this.key_requester;
+    }
+
+    public int get_key_visibility(){
+        return this.key_visibility;
+    }
+
     public String get_value_from_iid(String iid){
         switch(iid){
             case "keyId":
@@ -52,7 +60,7 @@ public class KeyEntry {
         return null;
     }
 
-    public String set_value(String column, String value){
+    public String set_value(String column, String value, String pdu_sender){
         switch(column){
             case "keyId":
                 return "Read-only";
@@ -67,7 +75,11 @@ public class KeyEntry {
             case "keyVisibility":
                 try{
                     this.key_visibility = Integer.parseInt(value);
-                    return value;
+                    if(this.key_requester.equals(pdu_sender)){
+                        return value;
+                    }else{
+                        return "Unauthorized";
+                    }
                 }catch(NumberFormatException e){
                     return "Wrong type";
                 }
@@ -100,5 +112,26 @@ public class KeyEntry {
         }
 
         return false;
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(this.key_id); sb.append(")");
+        sb.append(" "); sb.append(new String(this.key_value));
+        sb.append(" | (C) "); sb.append(this.key_requester);
+        sb.append(" | (D) "); sb.append(this.key_expiration_date);
+        sb.append(" | (T) "); sb.append(this.key_expiration_time);
+        sb.append(" | (V) "); sb.append(this.key_visibility);
+        
+        boolean is_expired = this.is_expired();
+        if(is_expired){
+            sb.append(" | (E) "); sb.append("Expired");
+        }else{
+            sb.append(" | (E) "); sb.append("Valid");
+        }
+
+        return sb.toString();
     }
 }

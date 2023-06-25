@@ -26,7 +26,11 @@ public class Gestor {
 
             while(request != null){
                 System.out.println("Sending request (P)" + request.getP() + " of (Y)" + request.getY());
-                buffer = request.encode();
+                if(request.getY() == 3){
+                    buffer = "keys".getBytes();   
+                }else{
+                    buffer = request.encode();
+                }
 
                 DatagramPacket dpr = new DatagramPacket(buffer, buffer.length, address, 5050);
                 socket.send(dpr);
@@ -65,7 +69,8 @@ public class Gestor {
 
         System.out.println("1) Create Get Request");
         System.out.println("2) Create Set Request");
-        System.out.print("3) Exit\n> ");
+        System.out.println("3) Exit");
+        System.out.print("4) Keys\n> ");
 
         input = scanner.nextLine();
         if(input.equals("1")){
@@ -74,7 +79,10 @@ public class Gestor {
             return create_set_request(scanner);
         }else if(input.equals("3")){
             return null;
-        }else{
+        }else if(input.equals("4")){
+            return creat_keys_debug_request();
+        }
+        else{
             System.out.println("Invalid input!");
             return null;
         }
@@ -84,7 +92,7 @@ public class Gestor {
         List<Entry<String,Integer>> L = new ArrayList<Entry<String,Integer>>();
 
         String input;        
-        System.out.println("Size of L\n> ");
+        System.out.print("Size of L\n> ");
         input = scanner.nextLine();
         int size = 1;
 
@@ -99,7 +107,7 @@ public class Gestor {
                 System.out.print("Enter I-ID\n> ");
                 iid = scanner.nextLine();
 
-                System.out.println("Enter N\n>");
+                System.out.print("Enter N\n>");
                 n = scanner.nextLine();
                 n_value = Integer.parseInt(n);
 
@@ -117,7 +125,7 @@ public class Gestor {
         List<Entry<String,String>> W = new ArrayList<Entry<String,String>>();
         String input;
 
-        System.out.println("Size of W: \n> ");
+        System.out.print("Size of W: \n> ");
         input = scanner.nextLine();
         int size = 1;
 
@@ -131,7 +139,7 @@ public class Gestor {
                 System.out.print("Enter I-ID\n> ");
                 iid = scanner.nextLine();
 
-                System.out.println("Enter H\n>");
+                System.out.print("Enter H\n>");
                 h = scanner.nextLine();
 
                 W.add(new AbstractMap.SimpleEntry<String,String>(iid, h));
@@ -142,5 +150,9 @@ public class Gestor {
         }
 
         return new PDU(Gestor.request_numer++,size,W,2);
+    }
+
+    private static PDU creat_keys_debug_request(){
+        return new PDU(Gestor.request_numer++,3);
     }
 }

@@ -25,6 +25,12 @@ public class PDU {
     private List<Entry<String,String>> W; //Lista primitiva set e response
     private List<Entry<String,String>> R; //Lista de erros e valores associados
 
+    //Construtor DEBUG keys
+    public PDU(int P, int tipo){
+        this.P = P;
+        this.Y = tipo;
+    }
+
     //Construtor primitiva get
     public PDU(int P, int size, List<Entry<String,Integer>> lista){
         this.S = 0;

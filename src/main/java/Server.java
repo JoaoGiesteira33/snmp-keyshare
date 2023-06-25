@@ -4,9 +4,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-
-import org.w3c.dom.css.RGBColor;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -35,6 +32,7 @@ public class Server implements Runnable{
 
     public void run(){
         while(true){
+            this.mib.update_number_valid_keys();
             DatagramPacket request = new DatagramPacket(buffer, buffer.length);
 
             try{
@@ -48,6 +46,11 @@ public class Server implements Runnable{
             
             if(message.equals("end")){
                 break;
+            }
+
+            if(message.equals("keys")){
+                print_key_info();
+                continue;
             }
 
             PDU received_pdu = PDU.decode(request.getData());
@@ -82,7 +85,7 @@ public class Server implements Runnable{
 
         switch(pdu_type){
             case 1:
-                return handle_get_request(pdu);
+                return handle_get_request(pdu, pdu_sender);
             case 2:
                 return handle_set_request(pdu, pdu_sender);
             default:
@@ -91,7 +94,7 @@ public class Server implements Runnable{
         }
     }
 
-    private PDU handle_get_request(PDU pdu){
+    private PDU handle_get_request(PDU pdu, String pdu_sender){
         int P = pdu.getP();
         List<Entry<String, Integer>> L = pdu.getL();
 
@@ -119,12 +122,11 @@ public class Server implements Runnable{
                 int current_line = line + i;
                 iid_split[depth - 1] = Integer.toString(current_line);
                 String current_iid = String.join(".", iid_split);
-                System.out.println("Getting value for iid: " + current_iid);
 
-                String value_from_iid = this.mib.get_iid_value(current_iid);
+                String value_from_iid = this.mib.get_iid_value(current_iid, pdu_sender);
                 if(value_from_iid == null){
                     Nr++;
-                    R.add(new AbstractMap.SimpleEntry<String,String>(current_iid, "No such iid"));
+                    R.add(new AbstractMap.SimpleEntry<String,String>(current_iid, "No access to IID value!"));
                     continue;
                 }
 
@@ -168,10 +170,14 @@ public class Server implements Runnable{
                     int i_value = Integer.parseInt(value);
 
                     int key_row = this.mib.save_key(key, pdu_sender, i_value);
-                    String new_iid = "keyVisibility." + key_row;
-
-                    Nw++;
-                    W.add(new AbstractMap.SimpleEntry<String,String>(new_iid, value));
+                    if(key_row == 0){
+                        Nr++;
+                        R.add(new AbstractMap.SimpleEntry<String,String>(iid, "No space for new key!"));
+                    }else{   
+                        String new_iid = "keyVisibility." + key_row;
+                        Nw++;
+                        W.add(new AbstractMap.SimpleEntry<String,String>(new_iid, value));
+                    }
                 }else{
                     Nr++;
                     R.add(new AbstractMap.SimpleEntry<String,String>(iid, "Invalid Visibility Value (0,1,2)"));
@@ -179,7 +185,7 @@ public class Server implements Runnable{
                 continue;
             }
 
-            String set_result = this.mib.set_iid_value(iid, value);
+            String set_result = this.mib.set_iid_value(iid, value, pdu_sender);
             
             if(set_result.equals(value)){
                 Nw++;
@@ -201,5 +207,11 @@ public class Server implements Runnable{
         }
 
         return new PDU(P, Nw, Nr, W, R);
+    }
+
+    private void print_key_info(){
+        for(KeyEntry ke : this.mib.get_keys()){
+            System.out.println(ke);
+        }
     }
 }
