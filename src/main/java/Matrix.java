@@ -121,8 +121,8 @@ public class Matrix {
     }
 
     public void update_matrix(){
-        int size = this.matrix.length;
         lock.lock();
+        int size = this.matrix.length;
         try{        
             //Rotate rows randomly
             for(int i = 0; i < size; i++){

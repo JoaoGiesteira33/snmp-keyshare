@@ -196,6 +196,8 @@ public class Server implements Runnable{
 
             String set_result = this.mib.set_iid_value(iid, value, pdu_sender);
             
+            //Se valor devolvido é igual ao valor enviado, então o set foi bem sucedido
+            //Em caso contrário, o valor devolvido é uma mensagem de erro
             if(set_result.equals(value)){
                 Nw++;
                 W.add(new AbstractMap.SimpleEntry<String,String>(iid, set_result));

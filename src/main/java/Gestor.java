@@ -157,7 +157,7 @@ public class Gestor {
                 System.out.print("Enter I-ID\n> ");
                 iid = scanner.nextLine();
 
-                System.out.print("Enter H\n>");
+                System.out.print("Enter H\n> ");
                 h = scanner.nextLine();
 
                 W.add(new AbstractMap.SimpleEntry<String,String>(iid, h));
@@ -170,6 +170,7 @@ public class Gestor {
         return new PDU(Gestor.request_numer++,size,W,2);
     }
 
+    //PDU apenas para efeitos de debug, para servidor fazer print das chaves
     private static PDU creat_keys_debug_request(){
         return new PDU(Gestor.request_numer++,3);
     }

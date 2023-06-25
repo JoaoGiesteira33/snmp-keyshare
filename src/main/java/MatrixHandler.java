@@ -19,6 +19,7 @@ public class MatrixHandler implements Runnable{
         int mib_key_size = this.mib.get_s_key_size();
 
         while(true){
+            //Deteta se o tamanho da matriz mudou e atualiza a matriz se necessário
             if(this.mib.get_s_key_size() != mib_key_size){
                 System.out.println("Matrix size has changed from " + mib_key_size + " to " + this.matrix.size());
                 mib_key_size = this.matrix.size();
@@ -36,6 +37,7 @@ public class MatrixHandler implements Runnable{
             long current_time_ms = System.currentTimeMillis();
             long time_since_last_update = current_time_ms - last_update_time;
             
+            //Atualiza a matriz se o tempo desde a última atualização for maior que o intervalo de atualização
             if(time_since_last_update >= this.mib.get_s_interval_update()){
                 System.out.println("Updating matrix because " + time_since_last_update + "ms have passed since last update.");
                 System.out.println("==========================================");

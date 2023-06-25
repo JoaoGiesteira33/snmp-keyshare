@@ -238,6 +238,12 @@ public class MIB {
         return "Unknown behavior";
       }
 
+      //Quando se insere uma chave na tabela
+      //Primeiro procura-se um ID livre
+      //Se não houver
+      //Procura-se uma chave expirada´
+      //Se não houver
+      //Erro -> return 0;
       private int get_free_key_id(){
         if(this.d_number_of_valid_keys == this.s_max_number_of_keys){
           return 0;

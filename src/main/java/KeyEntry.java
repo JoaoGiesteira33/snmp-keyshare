@@ -95,6 +95,8 @@ public class KeyEntry {
         return "Unkown behavior";
     }
 
+    // Calcula os campos de data e hora de expiração da chave
+    // Baseando-se no TTL na MIB
     private void calculate_expiration_date(int ttl_seconds){
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiration_date = now.plusSeconds(ttl_seconds);

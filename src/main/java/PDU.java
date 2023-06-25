@@ -196,6 +196,9 @@ public class PDU {
         }        
     }
 
+    //Função auxiliar para leitura de strings dentro dos bytes do PDU
+    //Por exemplo, 0x23 0x43 0x00 0x12
+    //Vai retornar a string representada por 0x23 0x43
     private static String read_full_string(ByteArrayInputStream encoded_PDU){
         StringBuilder sb = new StringBuilder();
 
