@@ -128,7 +128,10 @@ public class KeyEntry {
         StringBuilder sb = new StringBuilder();
 
         sb.append(this.key_id); sb.append(")");
-        sb.append(" "); sb.append(new String(this.key_value));
+        sb.append(" "); 
+        for(int i = 0; i < this.key_value.length; i++){
+            sb.append(String.format("%02x", this.key_value[i]));
+        }
         sb.append(" | (C) "); sb.append(this.key_requester);
         sb.append(" | (D) "); sb.append(this.key_expiration_date);
         sb.append(" | (T) "); sb.append(this.key_expiration_time);

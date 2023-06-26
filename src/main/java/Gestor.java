@@ -39,15 +39,16 @@ public class Gestor {
             byte[] buffer = new byte[2048];
 
             PDU request = create_request(scanner);
-
+            
             while(request != null){
                 System.out.println("Sending request (P)" + request.getP() + " of (Y)" + request.getY());
+
                 if(request.getY() == 3){
                     buffer = "key".getBytes();   
                 }else{
                     buffer = request.encode();
                 }
-
+                
                 byte[] encrypted_buffer = PDU.encrypt(buffer, SK);
                 DatagramPacket dpr = new DatagramPacket(encrypted_buffer, encrypted_buffer.length, address, 5050);
                 socket.send(dpr);
@@ -85,6 +86,7 @@ public class Gestor {
     private static PDU create_request(Scanner scanner){
         String input;
 
+        System.out.println("=====================");
         System.out.println("1) Create Get Request");
         System.out.println("2) Create Set Request");
         System.out.println("3) Exit");

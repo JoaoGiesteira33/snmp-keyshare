@@ -43,6 +43,7 @@ public class Server implements Runnable{
     public void run(){
         while(true){
             this.mib.update_number_valid_keys();
+            buffer = new byte[2048];
             DatagramPacket request = new DatagramPacket(buffer, buffer.length);
 
             try{

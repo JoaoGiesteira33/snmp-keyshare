@@ -17,11 +17,12 @@ public class MatrixHandler implements Runnable{
 
     public void run(){   
         int mib_key_size = this.mib.get_s_key_size();
+        byte[] mib_matrix_master_key = this.mib.get_c_master_key();
 
         while(true){
             //Deteta se o tamanho da matriz mudou e atualiza a matriz se necessário
             if(this.mib.get_s_key_size() != mib_key_size){
-                System.out.println("Matrix size has changed from " + mib_key_size + " to " + this.matrix.size());
+                System.out.println("Matrix size has changed from " + mib_key_size + " to " + this.mib.get_s_key_size());
                 mib_key_size = this.matrix.size();
 
                 int K = this.mib.get_s_key_size();
@@ -32,7 +33,23 @@ public class MatrixHandler implements Runnable{
                 Matrix s = new Matrix(K, Agente.SEED);
 
                 this.matrix = new Matrix(K, a.getMatrix(), b.getMatrix(), s.getMatrix());
+            }else if(this.mib.get_c_master_key() != mib_matrix_master_key){
+                System.out.println("Matrix master key change detected!");
+
+                mib_matrix_master_key = this.mib.get_c_master_key();
+
+                int K = this.mib.get_s_key_size();
+                byte[] M = this.mib.get_c_master_key();
+
+                Matrix a = new Matrix(K, M, 0);
+                Matrix b = new Matrix(K, M, 1);
+                Matrix s = new Matrix(K, Agente.SEED);
+
+                this.matrix = new Matrix(K, a.getMatrix(), b.getMatrix(), s.getMatrix());
             }
+
+            //Deteta se a chave mestre mudou e atualiza a matriz se necessário
+
 
             long current_time_ms = System.currentTimeMillis();
             long time_since_last_update = current_time_ms - last_update_time;
